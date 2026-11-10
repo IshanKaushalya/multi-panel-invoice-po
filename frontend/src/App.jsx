@@ -4,41 +4,39 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Login from "./pages/Login";
-import UsersManagement from "./pages/UsersManagement";
 
-// Import your existing pages (adjust only the filenames to match your files in src/pages/)
-// If any page has a different name, make sure the casing matches exactly!
+// Layout & Components
+import Layout from "./components/Layout";
+
+// Auth & Core Pages
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import UsersManagement from "./pages/UsersManagement";
 import Customers from "./pages/Customers";
 import Suppliers from "./pages/Suppliers";
-import Invoices from "./pages/Invoices";
-import DispatchNotes from "./pages/DispatchNotes";
-import PurchaseOrders from "./pages/PurchaseOrders";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 
-// If you have a Sidebar component, import it; otherwise, render children directly
-import Sidebar from "./components/Sidebar";
+// Invoices
+import InvoiceList from "./pages/InvoiceList";
+import InvoiceGeneration from "./pages/InvoiceGeneration";
+import InvoiceEdit from "./pages/InvoiceEdit";
 
-// Protected Layout: ensures unauthenticated visitors go straight to /login
-const ProtectedLayout = ({ children }) => {
+// Dispatch Notes
+import DispatchNoteList from "./pages/DispatchNoteList";
+
+// Purchase Orders
+import PurchaseOrderList from "./pages/PurchaseOrderList";
+import PurchaseOrderGeneration from "./pages/PurchaseOrderGeneration";
+import PurchaseOrderEdit from "./pages/PurchaseOrderEdit";
+
+// Route protection component
+const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   if (!token) {
     return <Navigate to="/login" replace />;
   }
-
-  return (
-    <div
-      className="app-container"
-      style={{ display: "flex", height: "100vh", overflow: "hidden" }}
-    >
-      {Sidebar && <Sidebar />}
-      <main style={{ flex: 1, overflowY: "auto", position: "relative" }}>
-        {children}
-      </main>
-    </div>
-  );
+  return children;
 };
 
 export default function App() {
@@ -47,7 +45,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* If no path is specified, start at /login unless already authenticated */}
+        {/* Default entry point: Start at /login unless already authenticated */}
         <Route
           path="/"
           element={
@@ -62,81 +60,44 @@ export default function App() {
         {/* Public Login Route */}
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Application Routes */}
+        {/* Protected Application Routes wrapped with Layout */}
         <Route
-          path="/dashboard"
           element={
-            <ProtectedLayout>
-              <Dashboard />
-            </ProtectedLayout>
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
           }
-        />
-        <Route
-          path="/users"
-          element={
-            <ProtectedLayout>
-              <UsersManagement />
-            </ProtectedLayout>
-          }
-        />
-        <Route
-          path="/customers"
-          element={
-            <ProtectedLayout>
-              <Customers />
-            </ProtectedLayout>
-          }
-        />
-        <Route
-          path="/suppliers"
-          element={
-            <ProtectedLayout>
-              <Suppliers />
-            </ProtectedLayout>
-          }
-        />
-        <Route
-          path="/invoices"
-          element={
-            <ProtectedLayout>
-              <Invoices />
-            </ProtectedLayout>
-          }
-        />
-        <Route
-          path="/dispatch-notes"
-          element={
-            <ProtectedLayout>
-              <DispatchNotes />
-            </ProtectedLayout>
-          }
-        />
-        <Route
-          path="/purchase-orders"
-          element={
-            <ProtectedLayout>
-              <PurchaseOrders />
-            </ProtectedLayout>
-          }
-        />
-        <Route
-          path="/reports"
-          element={
-            <ProtectedLayout>
-              <Reports />
-            </ProtectedLayout>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <ProtectedLayout>
-              <Settings />
-            </ProtectedLayout>
-          }
-        />
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/users" element={<UsersManagement />} />
+          <Route path="/customers" element={<Customers />} />
+          <Route path="/suppliers" element={<Suppliers />} />
 
-        {/* Unknown path fallback */}
+          {/* Invoices */}
+          <Route path="/invoices" element={<InvoiceList />} />
+          <Route path="/invoices/new" element={<InvoiceGeneration />} />
+          <Route path="/invoices/edit/:id" element={<InvoiceEdit />} />
+
+          {/* Dispatch Notes */}
+          <Route path="/dispatch-notes" element={<DispatchNoteList />} />
+
+          {/* Purchase Orders */}
+          <Route path="/purchase-orders" element={<PurchaseOrderList />} />
+          <Route
+            path="/purchase-orders/new"
+            element={<PurchaseOrderGeneration />}
+          />
+          <Route
+            path="/purchase-orders/edit/:id"
+            element={<PurchaseOrderEdit />}
+          />
+
+          {/* Reports & Settings */}
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
+
+        {/* Catch-all unknown routes: redirect to /login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
