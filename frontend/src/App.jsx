@@ -1,94 +1,58 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-
-// Layout & Components
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-
-// Auth & Core Pages
-import Login from "./pages/Login";
+import Login from "./pages/Login"; // <-- Import Login page
 import Dashboard from "./pages/Dashboard";
-import UsersManagement from "./pages/UsersManagement";
 import Customers from "./pages/Customers";
 import Suppliers from "./pages/Suppliers";
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-
-// Invoices
 import InvoiceList from "./pages/InvoiceList";
 import InvoiceGeneration from "./pages/InvoiceGeneration";
 import InvoiceEdit from "./pages/InvoiceEdit";
-
-// Dispatch Notes
-import DispatchNoteList from "./pages/DispatchNoteList";
-
-// Purchase Orders
 import PurchaseOrderList from "./pages/PurchaseOrderList";
 import PurchaseOrderGeneration from "./pages/PurchaseOrderGeneration";
 import PurchaseOrderEdit from "./pages/PurchaseOrderEdit";
+import DispatchNoteList from "./pages/DispatchNoteList";
+import Reports from "./pages/Reports";
+import UsersManagement from "./pages/UsersManagement";
+import Settings from "./pages/Settings";
+import "./App.css";
 
-// Guard: Redirects any unauthenticated user to /login
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-};
-
-export default function App() {
+function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        {/* Always start at /login as the root entry point */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-
-        {/* Public Login Page */}
+        {/* Public Login Route */}
         <Route path="/login" element={<Login />} />
 
-        {/* All Protected Pages inside Layout */}
-        <Route
-          element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/users" element={<UsersManagement />} />
-          <Route path="/customers" element={<Customers />} />
-          <Route path="/suppliers" element={<Suppliers />} />
+        {/* Protected Application Routes inside Layout */}
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="customers" element={<Customers />} />
+          <Route path="suppliers" element={<Suppliers />} />
+          <Route path="invoices" element={<InvoiceList />} />
+          <Route path="invoices/new" element={<InvoiceGeneration />} />
+          <Route path="invoices/edit/:id" element={<InvoiceEdit />} />
 
-          {/* Invoices */}
-          <Route path="/invoices" element={<InvoiceList />} />
-          <Route path="/invoices/new" element={<InvoiceGeneration />} />
-          <Route path="/invoices/edit/:id" element={<InvoiceEdit />} />
-
-          {/* Dispatch Notes */}
-          <Route path="/dispatch-notes" element={<DispatchNoteList />} />
-
-          {/* Purchase Orders */}
-          <Route path="/purchase-orders" element={<PurchaseOrderList />} />
+          <Route path="pos" element={<PurchaseOrderList />} />
+          <Route path="pos/new" element={<PurchaseOrderGeneration />} />
+          <Route path="purchase-orders" element={<PurchaseOrderList />} />
           <Route
-            path="/purchase-orders/new"
+            path="purchase-orders/new"
             element={<PurchaseOrderGeneration />}
           />
+          <Route path="pos/edit/:id" element={<PurchaseOrderEdit />} />
           <Route
-            path="/purchase-orders/edit/:id"
+            path="purchase-orders/edit/:id"
             element={<PurchaseOrderEdit />}
           />
 
-          {/* Reports & Settings */}
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="dispatch-notes" element={<DispatchNoteList />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="users" element={<UsersManagement />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
-
-        {/* Any unknown URL redirects back to /login */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
+
+export default App;
