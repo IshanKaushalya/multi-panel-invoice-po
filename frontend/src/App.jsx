@@ -30,7 +30,7 @@ import PurchaseOrderList from "./pages/PurchaseOrderList";
 import PurchaseOrderGeneration from "./pages/PurchaseOrderGeneration";
 import PurchaseOrderEdit from "./pages/PurchaseOrderEdit";
 
-// Route protection component
+// Guard: Redirects any unauthenticated user to /login
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -40,27 +40,16 @@ const ProtectedRoute = ({ children }) => {
 };
 
 export default function App() {
-  const token = localStorage.getItem("token");
-
   return (
     <Router>
       <Routes>
-        {/* Default entry point: Start at /login unless already authenticated */}
-        <Route
-          path="/"
-          element={
-            token ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
+        {/* Always start at /login as the root entry point */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Public Login Route */}
+        {/* Public Login Page */}
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Application Routes wrapped with Layout */}
+        {/* All Protected Pages inside Layout */}
         <Route
           element={
             <ProtectedRoute>
@@ -97,7 +86,7 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
         </Route>
 
-        {/* Catch-all unknown routes: redirect to /login */}
+        {/* Any unknown URL redirects back to /login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
