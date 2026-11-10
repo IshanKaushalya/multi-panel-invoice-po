@@ -27,8 +27,8 @@ const Login = () => {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      // Redirect to Dashboard
-      navigate("/");
+      // Redirect explicitly to the dashboard route
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       console.error("Login error:", err);
       setError(err.response?.data?.message || "Invalid email or password.");
