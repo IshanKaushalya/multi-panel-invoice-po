@@ -5,15 +5,60 @@ const router = express.Router();
 const User = require("../models/User");
 const { requireAdmin } = require("../middleware/auth");
 
-// CREATE a new user (Admin only or registration)
+// CREATE a new user
 router.post("/register", async (req, res) => {
   try {
     const { username, email, password, telephone, role } = req.body;
-    const user = new User({ username, email, password, telephone, role });
+
+    if (!username || !email || !password) {
+      return res
+        .status(400)
+        .json({ error: "Username, email, and password are required." });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Check for existing user by username or email
+    const existingUser = await User.findOne({
+      $or: [{ email: normalizedEmail }, { username: username.trim() }],
+    });
+    if (existingUser) {
+      return res.status(400).json({
+        error: "A user with that username or email already exists.",
+      });
+    }
+
+    // Hash password before saving
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = new User({
+      username: username.trim(),
+      email: normalizedEmail,
+      password: hashedPassword,
+      telephone: telephone || "",
+      role: role || "Staff",
+      isActive: true,
+    });
+
     await user.save();
+
+    // Automatically issue a token so new admins/users can immediately authenticate
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET || "fallback_secret_key",
+      { expiresIn: "1d" },
+    );
+
     res.status(201).json({
       message: "User created successfully",
-      user: { username, email, role },
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -23,7 +68,7 @@ router.post("/register", async (req, res) => {
 // GET all users (Admin only)
 router.get("/", requireAdmin, async (req, res) => {
   try {
-    const users = await User.find().select("-password"); // Exclude passwords from response
+    const users = await User.find().select("-password");
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -36,7 +81,18 @@ router.put("/:id", requireAdmin, async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const updates = req.body;
+    const updates = { ...req.body };
+
+    // If password is being updated, hash it properly
+    if (updates.password) {
+      const salt = await bcrypt.genSalt(10);
+      updates.password = await bcrypt.hash(updates.password, salt);
+    }
+
+    if (updates.email) {
+      updates.email = updates.email.trim().toLowerCase();
+    }
+
     Object.keys(updates).forEach((key) => {
       user[key] = updates[key];
     });
@@ -44,7 +100,7 @@ router.put("/:id", requireAdmin, async (req, res) => {
     await user.save();
     res.json({
       message: "User updated successfully",
-      user: { username: user.username, role: user.role },
+      user: { username: user.username, role: user.role, email: user.email },
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -80,25 +136,26 @@ router.delete("/:id", requireAdmin, async (req, res) => {
   }
 });
 
-// LOGIN user (Checks if active/not blocked)
+// LOGIN user
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 1. Verify email and password are provided
     if (!email || !password) {
       return res
         .status(400)
         .json({ message: "Please provide both email and password." });
     }
 
-    // 2. Check if the user exists
-    const user = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Check if the user exists
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password." });
     }
 
-    // 3. Check if user account is blocked
+    // Check if user account is blocked
     if (user.isActive === false) {
       return res.status(403).json({
         message:
@@ -106,20 +163,19 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // 4. Compare the provided password with the hashed database password
+    // Compare plain password against hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid email or password." });
     }
 
-    // 5. Generate the JWT payload containing user ID and Role
+    // Sign JWT
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }, // Token expires in 24 hours
+      process.env.JWT_SECRET || "fallback_secret_key",
+      { expiresIn: "1d" },
     );
 
-    // 6. Send the token and user data to the frontend
     res.json({
       message: "Login successful",
       token,
