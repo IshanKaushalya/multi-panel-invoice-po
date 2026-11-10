@@ -123,7 +123,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                   <h1
                     style={{
                       margin: "0 0 8px 0",
-                      fontSize: "16px",
+                      fontSize: "18px",
                       color: "#111827",
                       whiteSpace: "nowrap", // Keeps company name on a single line
                     }}
