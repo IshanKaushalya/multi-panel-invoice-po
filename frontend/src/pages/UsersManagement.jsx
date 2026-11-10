@@ -19,18 +19,48 @@ const UsersManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
+  // Helper to reliably retrieve the JWT token
+  const getAuthToken = () => {
+    let token = localStorage.getItem("token");
+    if (!token) {
+      try {
+        const userObj = JSON.parse(localStorage.getItem("user") || "{}");
+        token = userObj.token;
+      } catch (err) {
+        console.error("Failed to parse user storage:", err);
+      }
+    }
+    return token;
+  };
+
+  const getAuthConfig = () => {
+    const token = getAuthToken();
+    return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
 
   const fetchUsers = async () => {
     try {
+      const token = getAuthToken();
+      if (!token) {
+        console.warn("No token found in localStorage. Redirecting to login...");
+        window.location.href = "/login";
+        return;
+      }
+
       const response = await axios.get(`${API_URL}/api/users`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        alert("Session expired or unauthorized. Please log in again.");
+        window.location.href = "/login";
+      }
     }
   };
 
@@ -53,7 +83,7 @@ const UsersManagement = () => {
       email: user.email,
       password: "",
       telephone: user.telephone || "",
-      role: user.role,
+      role: user.role || "staff",
     });
     setIsModalOpen(true);
   };
@@ -66,11 +96,10 @@ const UsersManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const config = getAuthConfig();
 
       if (editingId) {
-        // If password is left blank during edit, omit it so it doesn't overwrite with empty hash
+        // If password is left blank during edit, omit it so it doesn't overwrite with an empty hash
         const payload = { ...formData };
         if (!payload.password) delete payload.password;
 
@@ -84,7 +113,11 @@ const UsersManagement = () => {
       fetchUsers();
     } catch (error) {
       console.error("Error saving user:", error);
-      alert(error.response?.data?.message || "Failed to save user.");
+      alert(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to save user.",
+      );
     }
   };
 
@@ -92,11 +125,11 @@ const UsersManagement = () => {
     const action = currentStatus ? "block" : "unblock";
     if (window.confirm(`Are you sure you want to ${action} this user?`)) {
       try {
-        const token = localStorage.getItem("token");
+        const config = getAuthConfig();
         await axios.patch(
           `${API_URL}/api/users/${id}/toggle-block`,
           {},
-          { headers: { Authorization: `Bearer ${token}` } },
+          config,
         );
         fetchUsers();
       } catch (error) {
@@ -206,7 +239,10 @@ const UsersManagement = () => {
                     style={{
                       textTransform: "capitalize",
                       fontWeight: "600",
-                      color: user.role === "admin" ? "#2563eb" : "#4b5563",
+                      color:
+                        user.role?.toLowerCase() === "admin"
+                          ? "#2563eb"
+                          : "#4b5563",
                     }}
                   >
                     {user.role}
@@ -338,7 +374,8 @@ const UsersManagement = () => {
                     padding: "0.5rem",
                     borderRadius: "4px",
                     border: "1px solid #d1d5db",
-                    color: "#ffffff",
+                    color: "#111827",
+                    backgroundColor: "#ffffff",
                   }}
                 />
               </div>
@@ -357,7 +394,8 @@ const UsersManagement = () => {
                     padding: "0.5rem",
                     borderRadius: "4px",
                     border: "1px solid #d1d5db",
-                    color: "#ffffff",
+                    color: "#111827",
+                    backgroundColor: "#ffffff",
                   }}
                 />
               </div>
@@ -375,7 +413,8 @@ const UsersManagement = () => {
                     padding: "0.5rem",
                     borderRadius: "4px",
                     border: "1px solid #d1d5db",
-                    color: "#ffffff",
+                    color: "#111827",
+                    backgroundColor: "#ffffff",
                   }}
                 />
               </div>
@@ -398,7 +437,8 @@ const UsersManagement = () => {
                     padding: "0.5rem",
                     borderRadius: "4px",
                     border: "1px solid #d1d5db",
-                    color: "#ffffff",
+                    color: "#111827",
+                    backgroundColor: "#ffffff",
                   }}
                 />
               </div>
@@ -415,7 +455,8 @@ const UsersManagement = () => {
                     padding: "0.5rem",
                     borderRadius: "4px",
                     border: "1px solid #d1d5db",
-                    color: "#ffffff",
+                    color: "#111827",
+                    backgroundColor: "#ffffff",
                     textTransform: "capitalize",
                   }}
                 >

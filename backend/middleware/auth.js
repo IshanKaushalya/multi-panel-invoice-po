@@ -1,29 +1,41 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
-// Verifies token and role
-const requireAdmin = (req, res, next) => {
-  // In a real app, token comes from req.headers.authorization
-  const token = req.headers.authorization?.split(" ")[1];
-
-  if (!token)
-    return res
-      .status(401)
-      .json({ message: "Access denied. No token provided." });
-
+const requireAdmin = async (req, res, next) => {
   try {
+    // 1. Extract token from Authorization header or custom header
+    let token = req.headers.authorization;
+    if (token && token.startsWith("Bearer ")) {
+      token = token.slice(7, token.length).trimLeft();
+    }
+
+    if (!token) {
+      return res
+        .status(401)
+        .json({ message: "No token provided. Authorization denied." });
+    }
+
+    // 2. Verify token
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "fallback_secret",
+      process.env.JWT_SECRET || "fallback_secret_key",
     );
-    req.user = decoded; // Contains { id, role }
 
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Access denied. Admins only." });
+    // 3. Attach user info to request
+    req.user = decoded;
+
+    // 4. Case-insensitive admin check (supports "admin", "Admin", "ADMIN")
+    if (!req.user.role || req.user.role.toLowerCase() !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Access denied. Admin rights required." });
     }
 
     next();
   } catch (error) {
-    res.status(400).json({ message: "Invalid token." });
+    return res
+      .status(401)
+      .json({ message: "Invalid or expired token.", error: error.message });
   }
 };
 
