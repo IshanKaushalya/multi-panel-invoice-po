@@ -14,30 +14,38 @@ const settingsRoutes = require("./routes/settingsRoutes");
 
 const app = express();
 
-// Allowed Origins (Localhost + your Vercel deployment URL)
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://multi-panel-invoice-po.vercel.app", // Replace or add your exact Vercel URL if different
-  process.env.FRONTEND_URL,
-].filter(Boolean);
-
-// Middleware
+// Robust CORS Middleware
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
+      // 1. Allow non-browser requests (Postman, curl, server-to-server)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
+
+      // 2. Allow local development
+      if (
+        origin === "http://localhost:5173" ||
+        origin === "http://localhost:3000"
+      ) {
+        return callback(null, true);
       }
-      return callback(null, true);
+
+      // 3. Allow all Vercel domains and previews for your project
+      if (
+        origin.endsWith(".vercel.app") ||
+        (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL)
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Blocked by CORS policy"), false);
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
-app.use(express.json()); // Parses incoming JSON requests
+
+app.use(express.json());
 
 // Database Connection
 mongoose
@@ -45,7 +53,7 @@ mongoose
   .then(() => console.log("✅ Connected to MongoDB successfully"))
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err.message);
-    process.exit(1); // Exit process with failure
+    process.exit(1);
   });
 
 // API Routes
@@ -57,7 +65,7 @@ app.use("/api/dispatch-notes", dispatchNoteRoutes);
 app.use("/api/purchase-orders", purchaseOrderRoutes);
 app.use("/api/settings", settingsRoutes);
 
-// Basic Health Check Route
+// Health Check Route
 app.get("/", (req, res) => {
   res.send("Multi-Panel Invoice PO API is running...");
 });
