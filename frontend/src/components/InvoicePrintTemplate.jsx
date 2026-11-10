@@ -112,7 +112,6 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                 display: "flex",
                 alignItems: "center",
                 gap: "15px",
-                maxWidth: "68%",
               }}
             >
               <img
@@ -129,6 +128,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                     margin: "0 0 8px 0",
                     fontSize: "20px",
                     color: "#111827",
+                    whiteSpace: "nowrap", // Keeps company name on a single line
                   }}
                 >
                   {displayCompanyName}
