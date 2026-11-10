@@ -5,8 +5,11 @@ import {
   Navigate,
 } from "react-router-dom";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
 import UsersManagement from "./pages/UsersManagement";
+
+// Import your existing pages (adjust only the filenames to match your files in src/pages/)
+// If any page has a different name, make sure the casing matches exactly!
+import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
 import Suppliers from "./pages/Suppliers";
 import Invoices from "./pages/Invoices";
@@ -14,25 +17,37 @@ import DispatchNotes from "./pages/DispatchNotes";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
-import MainLayout from "./layouts/MainLayout"; // your sidebar/navigation wrapper
 
-// Protected Route Wrapper
-const ProtectedRoute = ({ children }) => {
+// If you have a Sidebar component, import it; otherwise, render children directly
+import Sidebar from "./components/Sidebar";
+
+// Protected Layout: ensures unauthenticated visitors go straight to /login
+const ProtectedLayout = ({ children }) => {
   const token = localStorage.getItem("token");
   if (!token) {
-    // If not authenticated, force redirect to /login
     return <Navigate to="/login" replace />;
   }
-  return children;
+
+  return (
+    <div
+      className="app-container"
+      style={{ display: "flex", height: "100vh", overflow: "hidden" }}
+    >
+      {Sidebar && <Sidebar />}
+      <main style={{ flex: 1, overflowY: "auto", position: "relative" }}>
+        {children}
+      </main>
+    </div>
+  );
 };
 
-function App() {
+export default function App() {
   const token = localStorage.getItem("token");
 
   return (
     <Router>
       <Routes>
-        {/* Default route `/`: If logged in go to dashboard, otherwise start at /login */}
+        {/* If no path is specified, start at /login unless already authenticated */}
         <Route
           path="/"
           element={
@@ -47,30 +62,83 @@ function App() {
         {/* Public Login Route */}
         <Route path="/login" element={<Login />} />
 
-        {/* Protected App Routes inside Main Layout */}
+        {/* Protected Application Routes */}
         <Route
+          path="/dashboard"
           element={
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
+            <ProtectedLayout>
+              <Dashboard />
+            </ProtectedLayout>
           }
-        >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/users" element={<UsersManagement />} />
-          <Route path="/customers" element={<Customers />} />
-          <Route path="/suppliers" element={<Suppliers />} />
-          <Route path="/invoices" element={<Invoices />} />
-          <Route path="/dispatch-notes" element={<DispatchNotes />} />
-          <Route path="/purchase-orders" element={<PurchaseOrders />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
-        </Route>
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedLayout>
+              <UsersManagement />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/customers"
+          element={
+            <ProtectedLayout>
+              <Customers />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/suppliers"
+          element={
+            <ProtectedLayout>
+              <Suppliers />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/invoices"
+          element={
+            <ProtectedLayout>
+              <Invoices />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/dispatch-notes"
+          element={
+            <ProtectedLayout>
+              <DispatchNotes />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/purchase-orders"
+          element={
+            <ProtectedLayout>
+              <PurchaseOrders />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <ProtectedLayout>
+              <Reports />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedLayout>
+              <Settings />
+            </ProtectedLayout>
+          }
+        />
 
-        {/* Catch-all unknown routes: redirect to /login */}
+        {/* Unknown path fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );
 }
-
-export default App;
