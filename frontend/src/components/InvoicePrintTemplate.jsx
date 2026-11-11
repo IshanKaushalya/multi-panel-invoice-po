@@ -15,13 +15,23 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
       ? settings.companyName
       : "Multi Engineering Services Lanka (Pvt) Ltd";
 
+  // Format current timestamp like "11/11/26, 2:37 PM"
+  const generatedTime = new Date().toLocaleString("en-US", {
+    year: "2-digit",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
   return (
     <div
       ref={ref}
       className="print-root"
       style={{
         width: "100%",
-        minHeight: "268mm", // Fits 280mm (28cm) height minus top/bottom margins
+        minHeight: "268mm", // Fits 28cm height minus 6mm top/bottom @page margins
         margin: "0",
         padding: "0",
         fontFamily: "Arial, sans-serif",
@@ -32,13 +42,13 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
         backgroundColor: "#fff",
       }}
     >
-      {/* EMBEDDED PRINT STYLES: Picked up automatically by react-to-print and window.print() */}
+      {/* EMBEDDED PRINT STYLES */}
       <style>
         {`
           @media print {
             @page {
               size: 21.5cm 28cm;
-              margin: 6mm 8mm !important; /* Narrow 6mm top/bottom, 8mm left/right */
+              margin: 6mm 8mm !important;
             }
             html, body {
               width: 100% !important;
@@ -59,6 +69,23 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
           }
         `}
       </style>
+
+      {/* TOP METADATA BAR: Generated Time & Invoice Number */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontSize: "11px",
+          color: "#000",
+          marginBottom: "14px",
+        }}
+      >
+        <span>{generatedTime}</span>
+        <span style={{ fontWeight: "500" }}>{invoice.invoiceNo}</span>
+        <span style={{ width: "80px" }}></span>{" "}
+        {/* Balances center alignment */}
+      </div>
 
       {/* TOP CONTENT WRAPPER */}
       <div style={{ flex: 1 }}>
@@ -196,11 +223,12 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
           </div>
         </div>
 
-        {/* ITEMS TABLE */}
+        {/* ITEMS TABLE (Fixed layout with wide 44% Description column) */}
         <table
           className="print-table"
           style={{
             width: "100%",
+            tableLayout: "fixed",
             borderCollapse: "collapse",
             marginTop: "8px",
           }}
@@ -209,10 +237,10 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
             <tr>
               <th
                 style={{
-                  width: "35px",
+                  width: "5%",
                   textAlign: "center",
                   border: "1.5px solid #000",
-                  padding: "6px",
+                  padding: "6px 4px",
                   fontSize: "12px",
                   backgroundColor: "#f3f4f6",
                 }}
@@ -221,8 +249,9 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </th>
               <th
                 style={{
+                  width: "44%",
                   border: "1.5px solid #000",
-                  padding: "6px",
+                  padding: "6px 8px",
                   fontSize: "12px",
                   backgroundColor: "#f3f4f6",
                   textAlign: "left",
@@ -232,10 +261,10 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </th>
               <th
                 style={{
-                  width: "55px",
+                  width: "7%",
                   textAlign: "center",
                   border: "1.5px solid #000",
-                  padding: "6px",
+                  padding: "6px 4px",
                   fontSize: "12px",
                   backgroundColor: "#f3f4f6",
                 }}
@@ -244,10 +273,10 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </th>
               <th
                 style={{
-                  width: "65px",
+                  width: "8%",
                   textAlign: "center",
                   border: "1.5px solid #000",
-                  padding: "6px",
+                  padding: "6px 4px",
                   fontSize: "12px",
                   backgroundColor: "#f3f4f6",
                 }}
@@ -256,10 +285,10 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </th>
               <th
                 style={{
-                  width: "105px",
+                  width: "13%",
                   textAlign: "right",
                   border: "1.5px solid #000",
-                  padding: "6px",
+                  padding: "6px 6px",
                   fontSize: "12px",
                   backgroundColor: "#f3f4f6",
                 }}
@@ -268,10 +297,10 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </th>
               <th
                 style={{
-                  width: "65px",
+                  width: "8%",
                   textAlign: "right",
                   border: "1.5px solid #000",
-                  padding: "6px",
+                  padding: "6px 4px",
                   fontSize: "12px",
                   backgroundColor: "#f3f4f6",
                 }}
@@ -280,10 +309,10 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </th>
               <th
                 style={{
-                  width: "115px",
+                  width: "15%",
                   textAlign: "right",
                   border: "1.5px solid #000",
-                  padding: "6px",
+                  padding: "6px 6px",
                   fontSize: "12px",
                   backgroundColor: "#f3f4f6",
                 }}
@@ -299,7 +328,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                   style={{
                     textAlign: "center",
                     border: "1.5px solid #000",
-                    padding: "6px",
+                    padding: "6px 4px",
                     fontSize: "12px",
                   }}
                 >
@@ -308,8 +337,9 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                 <td
                   style={{
                     border: "1.5px solid #000",
-                    padding: "6px",
+                    padding: "6px 8px",
                     fontSize: "12px",
+                    wordWrap: "break-word",
                   }}
                 >
                   {item.description}
@@ -318,7 +348,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                   style={{
                     textAlign: "center",
                     border: "1.5px solid #000",
-                    padding: "6px",
+                    padding: "6px 4px",
                     fontSize: "12px",
                   }}
                 >
@@ -328,7 +358,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                   style={{
                     textAlign: "center",
                     border: "1.5px solid #000",
-                    padding: "6px",
+                    padding: "6px 4px",
                     fontSize: "12px",
                   }}
                 >
@@ -338,8 +368,9 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                   style={{
                     textAlign: "right",
                     border: "1.5px solid #000",
-                    padding: "6px",
+                    padding: "6px 6px",
                     fontSize: "12px",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {formatCurrency(item.rate)}
@@ -348,7 +379,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                   style={{
                     textAlign: "right",
                     border: "1.5px solid #000",
-                    padding: "6px",
+                    padding: "6px 4px",
                     fontSize: "12px",
                   }}
                 >
@@ -358,8 +389,9 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                   style={{
                     textAlign: "right",
                     border: "1.5px solid #000",
-                    padding: "6px",
+                    padding: "6px 6px",
                     fontSize: "12px",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {formatCurrency(item.itemTotal)}
@@ -470,7 +502,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
         </div>
       </div>
 
-      {/* FOOTER */}
+      {/* FOOTER & BOTTOM PAGE NUMBER */}
       <div
         style={{
           marginTop: "auto",
@@ -510,6 +542,19 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
           >
             Authorized Signatory
           </div>
+        </div>
+
+        {/* PAGE NUMBER AT BOTTOM RIGHT */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: "15px",
+            fontSize: "11px",
+            color: "#000",
+          }}
+        >
+          <span>1/1</span>
         </div>
       </div>
     </div>
