@@ -15,7 +15,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
       ? settings.companyName
       : "Multi Engineering Services Lanka (Pvt) Ltd";
 
-  // Direct print handler configured for 21.5cm x 28cm paper size
+  // Direct print handler configured with 0 page margins to eliminate whitespace
   const handleDirectPrint = () => {
     if (ref && ref.current) {
       const printContents = ref.current.innerHTML;
@@ -24,18 +24,18 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
       document.body.innerHTML = `
         <html>
           <head>
-            <title>Invoice - ${invoice.invoiceNo || ""}</title>
+            <title></title>
             <style>
               @page {
                 size: 21.5cm 28cm;
-                margin: 10mm;
+                margin: 5mm; /* Minimal physical paper margin */
               }
               body { 
                 font-family: Arial, sans-serif; 
                 color: #000; 
                 margin: 0; 
                 padding: 0; 
-                width: 19.5cm;
+                width: 20.5cm;
                 box-sizing: border-box;
               }
               table { width: 100%; border-collapse: collapse; margin-top: 15px; }
@@ -90,13 +90,14 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
         </button>
       </div>
 
-      {/* INVOICE CONTAINER (Fitted to 21.5cm width bounds) */}
+      {/* INVOICE CONTAINER */}
       <div
         ref={ref}
         style={{
-          width: "19.5cm",
+          width: "100%",
+          maxWidth: "20.5cm",
           margin: "0 auto",
-          padding: "15mm",
+          padding: "5mm",
           fontFamily: "Arial, sans-serif",
           color: "#000",
           minHeight: "260mm",
@@ -140,7 +141,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                     margin: "0 0 6px 0",
                     fontSize: "18px",
                     color: "#111827",
-                    whiteSpace: "nowrap", // Keeps company name strictly on a single line
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {displayCompanyName}
