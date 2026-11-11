@@ -15,7 +15,6 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
       ? settings.companyName
       : "Multi Engineering Services Lanka (Pvt) Ltd";
 
-  // Format current timestamp like "11/11/26, 2:37 PM"
   const generatedTime = new Date().toLocaleString("en-US", {
     year: "2-digit",
     month: "numeric",
@@ -31,7 +30,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
       className="print-root"
       style={{
         width: "100%",
-        minHeight: "268mm", // Fits 28cm height minus 6mm top/bottom @page margins
+        minHeight: "268mm",
         margin: "0",
         padding: "0",
         fontFamily: "Arial, sans-serif",
@@ -42,29 +41,20 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
         backgroundColor: "#fff",
       }}
     >
-      {/* EMBEDDED PRINT STYLES */}
       <style>
         {`
           @media print {
             @page {
               size: 21.5cm 28cm;
-              margin: 6mm 8mm !important;
+              margin: 5mm !important;
             }
-            html, body {
-              width: 100% !important;
+            body {
+              width: 21.5cm !important;
+              height: 28cm !important;
               margin: 0 !important;
               padding: 0 !important;
-              background-color: #fff !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
-            }
-            .print-root {
-              width: 100% !important;
-              max-width: 100% !important;
-              min-height: 266mm !important;
-              margin: 0 !important;
-              padding: 0 !important;
-              box-sizing: border-box !important;
             }
           }
         `}
@@ -78,13 +68,12 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
           alignItems: "center",
           fontSize: "11px",
           color: "#000",
-          marginBottom: "14px",
+          marginBottom: "12px",
         }}
       >
         <span>{generatedTime}</span>
         <span style={{ fontWeight: "500" }}>{invoice.invoiceNo}</span>
-        <span style={{ width: "80px" }}></span>{" "}
-        {/* Balances center alignment */}
+        <span style={{ width: "80px" }}></span>
       </div>
 
       {/* TOP CONTENT WRAPPER */}
@@ -512,7 +501,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
           fontSize: "12px",
         }}
       >
-        <p style={{ marginBottom: "30px" }}>Thank you for your business!</p>
+        <p style={{ marginBottom: "25px" }}>Thank you for your business!</p>
         <div
           style={{
             display: "flex",
@@ -549,7 +538,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
           style={{
             display: "flex",
             justifyContent: "flex-end",
-            marginTop: "15px",
+            marginTop: "12px",
             fontSize: "11px",
             color: "#000",
           }}
