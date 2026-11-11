@@ -212,7 +212,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
           </div>
         </div>
 
-        {/* ITEMS TABLE (Fixed layout with wide 44% Description column) */}
+        {/* ITEMS TABLE (Expanded Description Width to 58%) */}
         <table
           className="print-table"
           style={{
@@ -238,7 +238,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </th>
               <th
                 style={{
-                  width: "44%",
+                  width: "58%", // Widened description column
                   border: "1.5px solid #000",
                   padding: "6px 8px",
                   fontSize: "12px",
@@ -250,7 +250,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </th>
               <th
                 style={{
-                  width: "7%",
+                  width: "6%",
                   textAlign: "center",
                   border: "1.5px solid #000",
                   padding: "6px 4px",
@@ -262,7 +262,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </th>
               <th
                 style={{
-                  width: "8%",
+                  width: "7%",
                   textAlign: "center",
                   border: "1.5px solid #000",
                   padding: "6px 4px",
@@ -274,7 +274,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </th>
               <th
                 style={{
-                  width: "13%",
+                  width: "11%",
                   textAlign: "right",
                   border: "1.5px solid #000",
                   padding: "6px 6px",
@@ -286,7 +286,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </th>
               <th
                 style={{
-                  width: "8%",
+                  width: "5%",
                   textAlign: "right",
                   border: "1.5px solid #000",
                   padding: "6px 4px",
@@ -294,11 +294,11 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                   backgroundColor: "#f3f4f6",
                 }}
               >
-                Disc (%)
+                Disc
               </th>
               <th
                 style={{
-                  width: "15%",
+                  width: "14%",
                   textAlign: "right",
                   border: "1.5px solid #000",
                   padding: "6px 6px",
