@@ -15,21 +15,31 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
       ? settings.companyName
       : "Multi Engineering Services Lanka (Pvt) Ltd";
 
-  // Direct print handler that bypasses desktop saving
+  // Direct print handler configured for 21.5cm x 28cm paper size
   const handleDirectPrint = () => {
     if (ref && ref.current) {
       const printContents = ref.current.innerHTML;
       const originalContents = document.body.innerHTML;
 
-      // Temporarily replace body content with only the invoice template content for printing
       document.body.innerHTML = `
         <html>
           <head>
             <title>Invoice - ${invoice.invoiceNo || ""}</title>
             <style>
-              body { font-family: Arial, sans-serif; color: #000; margin: 0; padding: 20px; }
-              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-              th, td { border: 1px solid #000; padding: 8px; font-size: 12px; }
+              @page {
+                size: 21.5cm 28cm;
+                margin: 10mm;
+              }
+              body { 
+                font-family: Arial, sans-serif; 
+                color: #000; 
+                margin: 0; 
+                padding: 0; 
+                width: 19.5cm;
+                box-sizing: border-box;
+              }
+              table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+              th, td { border: 1.5px solid #000; padding: 6px 8px; font-size: 11px; }
               th { background-color: #f3f4f6; }
               .no-print { display: none !important; }
             </style>
@@ -80,11 +90,13 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
         </button>
       </div>
 
-      {/* INVOICE CONTAINER */}
+      {/* INVOICE CONTAINER (Fitted to 21.5cm width bounds) */}
       <div
         ref={ref}
         style={{
-          padding: "20px",
+          width: "19.5cm",
+          margin: "0 auto",
+          padding: "15mm",
           fontFamily: "Arial, sans-serif",
           color: "#000",
           minHeight: "260mm",
@@ -103,7 +115,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               justifyContent: "space-between",
               alignItems: "flex-start",
               borderBottom: "2px solid #000",
-              paddingBottom: "20px",
+              paddingBottom: "15px",
               marginBottom: "20px",
             }}
           >
@@ -117,7 +129,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               <img
                 src="/logo.png"
                 alt="Company Logo"
-                style={{ width: "75px", height: "75px", objectFit: "contain" }}
+                style={{ width: "70px", height: "70px", objectFit: "contain" }}
                 onError={(e) => {
                   e.target.style.display = "none";
                 }}
@@ -125,22 +137,22 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               <div>
                 <h1
                   style={{
-                    margin: "0 0 8px 0",
-                    fontSize: "20px",
+                    margin: "0 0 6px 0",
+                    fontSize: "18px",
                     color: "#111827",
-                    whiteSpace: "nowrap", // Keeps company name on a single line
+                    whiteSpace: "nowrap", // Keeps company name strictly on a single line
                   }}
                 >
                   {displayCompanyName}
                 </h1>
-                <p style={{ margin: "2px 0", fontSize: "13px" }}>
+                <p style={{ margin: "2px 0", fontSize: "12px" }}>
                   {settings?.companyAddress ||
                     "No.466/7A Thapowanaya Road, Aggona, Angoda"}
                 </p>
-                <p style={{ margin: "2px 0", fontSize: "13px" }}>
+                <p style={{ margin: "2px 0", fontSize: "12px" }}>
                   Phone: {settings?.companyPhone || "0777791772/0771118034"}
                 </p>
-                <p style={{ margin: "2px 0", fontSize: "13px" }}>
+                <p style={{ margin: "2px 0", fontSize: "12px" }}>
                   Email:{" "}
                   {settings?.companyEmail || "newmultiengineering@gmail.com"}
                 </p>
@@ -150,18 +162,26 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
             <div style={{ textAlign: "right", whiteSpace: "nowrap" }}>
               <h2
                 style={{
-                  margin: "0 0 10px 0",
-                  fontSize: "32px",
+                  margin: "0 0 8px 0",
+                  fontSize: "26px",
                   color: "#374151",
                   textTransform: "uppercase",
                 }}
               >
                 Invoice
               </h2>
-              <p style={{ margin: "5px 0", fontWeight: "bold" }}>
+              <p
+                style={{
+                  margin: "4px 0",
+                  fontSize: "13px",
+                  fontWeight: "bold",
+                }}
+              >
                 Invoice No: {invoice.invoiceNo}
               </p>
-              <p style={{ margin: "5px 0" }}>Date: {invoice.date}</p>
+              <p style={{ margin: "4px 0", fontSize: "13px" }}>
+                Date: {invoice.date}
+              </p>
             </div>
           </div>
 
@@ -170,15 +190,17 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              marginBottom: "30px",
+              marginBottom: "25px",
+              fontSize: "13px",
             }}
           >
-            <div style={{ width: "45%" }}>
+            <div style={{ width: "48%" }}>
               <h3
                 style={{
                   borderBottom: "1px solid #000",
-                  paddingBottom: "5px",
-                  marginBottom: "10px",
+                  paddingBottom: "4px",
+                  marginBottom: "8px",
+                  fontSize: "14px",
                 }}
               >
                 Bill To:
@@ -193,12 +215,13 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                 Address: {invoice.customer?.address}
               </p>
             </div>
-            <div style={{ width: "45%" }}>
+            <div style={{ width: "48%" }}>
               <h3
                 style={{
                   borderBottom: "1px solid #000",
-                  paddingBottom: "5px",
-                  marginBottom: "10px",
+                  paddingBottom: "4px",
+                  marginBottom: "8px",
+                  fontSize: "14px",
                 }}
               >
                 Details:
@@ -222,32 +245,170 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
           </div>
 
           {/* ITEMS TABLE */}
-          <table className="print-table">
+          <table
+            className="print-table"
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              marginTop: "10px",
+            }}
+          >
             <thead>
               <tr>
-                <th style={{ width: "40px", textAlign: "center" }}>#</th>
-                <th>Description</th>
-                <th style={{ textAlign: "center" }}>Qty</th>
-                <th style={{ textAlign: "center" }}>Unit</th>
-                <th style={{ textAlign: "right" }}>Rate (Rs.)</th>
-                <th style={{ textAlign: "right" }}>Disc (%)</th>
-                <th style={{ textAlign: "right" }}>Total (Rs.)</th>
+                <th
+                  style={{
+                    width: "35px",
+                    textAlign: "center",
+                    border: "1.5px solid #000",
+                    padding: "6px",
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                  }}
+                >
+                  #
+                </th>
+                <th
+                  style={{
+                    border: "1.5px solid #000",
+                    padding: "6px",
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                  }}
+                >
+                  Description
+                </th>
+                <th
+                  style={{
+                    width: "50px",
+                    textAlign: "center",
+                    border: "1.5px solid #000",
+                    padding: "6px",
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                  }}
+                >
+                  Qty
+                </th>
+                <th
+                  style={{
+                    width: "65px",
+                    textAlign: "center",
+                    border: "1.5px solid #000",
+                    padding: "6px",
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                  }}
+                >
+                  Unit
+                </th>
+                <th
+                  style={{
+                    width: "100px",
+                    textAlign: "right",
+                    border: "1.5px solid #000",
+                    padding: "6px",
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                  }}
+                >
+                  Rate (Rs.)
+                </th>
+                <th
+                  style={{
+                    width: "65px",
+                    textAlign: "right",
+                    border: "1.5px solid #000",
+                    padding: "6px",
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                  }}
+                >
+                  Disc (%)
+                </th>
+                <th
+                  style={{
+                    width: "110px",
+                    textAlign: "right",
+                    border: "1.5px solid #000",
+                    padding: "6px",
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                  }}
+                >
+                  Total (Rs.)
+                </th>
               </tr>
             </thead>
             <tbody>
               {invoice.items.map((item, index) => (
                 <tr key={index}>
-                  <td style={{ textAlign: "center" }}>{index + 1}</td>
-                  <td>{item.description}</td>
-                  <td style={{ textAlign: "center" }}>{item.quantity}</td>
-                  <td style={{ textAlign: "center" }}>{item.unitType}</td>
-                  <td style={{ textAlign: "right" }}>
+                  <td
+                    style={{
+                      textAlign: "center",
+                      border: "1.5px solid #000",
+                      padding: "6px",
+                      fontSize: "11px",
+                    }}
+                  >
+                    {index + 1}
+                  </td>
+                  <td
+                    style={{
+                      border: "1.5px solid #000",
+                      padding: "6px",
+                      fontSize: "11px",
+                    }}
+                  >
+                    {item.description}
+                  </td>
+                  <td
+                    style={{
+                      textAlign: "center",
+                      border: "1.5px solid #000",
+                      padding: "6px",
+                      fontSize: "11px",
+                    }}
+                  >
+                    {item.quantity}
+                  </td>
+                  <td
+                    style={{
+                      textAlign: "center",
+                      border: "1.5px solid #000",
+                      padding: "6px",
+                      fontSize: "11px",
+                    }}
+                  >
+                    {item.unitType}
+                  </td>
+                  <td
+                    style={{
+                      textAlign: "right",
+                      border: "1.5px solid #000",
+                      padding: "6px",
+                      fontSize: "11px",
+                    }}
+                  >
                     {formatCurrency(item.rate)}
                   </td>
-                  <td style={{ textAlign: "right" }}>
+                  <td
+                    style={{
+                      textAlign: "right",
+                      border: "1.5px solid #000",
+                      padding: "6px",
+                      fontSize: "11px",
+                    }}
+                  >
                     {item.discountPercentage}%
                   </td>
-                  <td style={{ textAlign: "right" }}>
+                  <td
+                    style={{
+                      textAlign: "right",
+                      border: "1.5px solid #000",
+                      padding: "6px",
+                      fontSize: "11px",
+                    }}
+                  >
                     {formatCurrency(item.itemTotal)}
                   </td>
                 </tr>
@@ -268,16 +429,17 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               <div
                 style={{
                   padding: "10px",
-                  minHeight: "80px",
-                  border: "1px solid #000",
+                  minHeight: "70px",
+                  border: "1.5px solid #000",
                   borderRadius: "4px",
+                  fontSize: "12px",
                 }}
               >
                 <strong>Remarks:</strong>
                 <p
                   style={{
-                    margin: "5px 0 0 0",
-                    fontSize: "14px",
+                    margin: "4px 0 0 0",
+                    fontSize: "12px",
                     whiteSpace: "pre-wrap",
                   }}
                 >
@@ -288,12 +450,12 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
               </div>
             </div>
 
-            <div style={{ width: "320px" }}>
+            <div style={{ width: "300px", fontSize: "13px" }}>
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginBottom: "8px",
+                  marginBottom: "6px",
                 }}
               >
                 <span>Subtotal:</span>
@@ -303,7 +465,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginBottom: "8px",
+                  marginBottom: "6px",
                 }}
               >
                 <span>Discount ({invoice.billDiscount}%):</span>
@@ -318,7 +480,7 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginBottom: "8px",
+                  marginBottom: "6px",
                 }}
               >
                 <span>
@@ -332,9 +494,9 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginBottom: "8px",
-                  borderBottom: "1px solid #000",
-                  paddingBottom: "8px",
+                  marginBottom: "6px",
+                  borderBottom: "1.5px solid #000",
+                  paddingBottom: "6px",
                 }}
               >
                 <span>Advance Deduction:</span>
@@ -345,8 +507,8 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
                   display: "flex",
                   justifyContent: "space-between",
                   fontWeight: "bold",
-                  fontSize: "18px",
-                  marginTop: "8px",
+                  fontSize: "16px",
+                  marginTop: "6px",
                 }}
               >
                 <span>Grand Total:</span>
@@ -360,36 +522,38 @@ const InvoicePrintTemplate = React.forwardRef(({ invoice, settings }, ref) => {
         <div
           style={{
             marginTop: "auto",
-            paddingTop: "40px",
+            paddingTop: "30px",
             textAlign: "center",
             color: "#4b5563",
-            fontSize: "14px",
+            fontSize: "13px",
           }}
         >
-          <p style={{ marginBottom: "40px" }}>Thank you for your business!</p>
+          <p style={{ marginBottom: "35px" }}>Thank you for your business!</p>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              padding: "0 20px",
+              padding: "0 10px",
             }}
           >
             <div
               style={{
-                borderTop: "1px solid #000",
-                width: "220px",
-                paddingTop: "10px",
+                borderTop: "1.5px solid #000",
+                width: "200px",
+                paddingTop: "8px",
                 color: "#000",
+                fontSize: "12px",
               }}
             >
               Customer Signature
             </div>
             <div
               style={{
-                borderTop: "1px solid #000",
-                width: "220px",
-                paddingTop: "10px",
+                borderTop: "1.5px solid #000",
+                width: "200px",
+                paddingTop: "8px",
                 color: "#000",
+                fontSize: "12px",
               }}
             >
               Authorized Signatory
