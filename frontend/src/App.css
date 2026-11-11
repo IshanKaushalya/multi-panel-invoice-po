@@ -247,7 +247,6 @@ body,
 @media print {
   .sidebar,
   .print-hide,
-  .no-print,
   .modal-overlay,
   .page-container,
   .page-header,
@@ -257,38 +256,35 @@ body,
 
   html,
   body,
-  #root,
-  .layout-container,
-  .main-content {
+  #root {
     background: white !important;
-    width: 100% !important;
-    height: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    height: auto !important;
     overflow: visible !important;
-    position: static !important;
   }
 
-  /* Force the print template container to map exactly to paper specs */
+  .layout-container {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Allow the print template to expand and flow naturally across pages */
   .print-source-hidden {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
-    width: 21.5cm !important;
-    min-height: 28cm !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
     visibility: visible !important;
     overflow: visible !important;
     display: block !important;
-    background: white !important;
-  }
-
-  .print-source-hidden > div {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
   }
 
   .print-source-hidden * {
@@ -296,10 +292,11 @@ body,
   }
 
   @page {
-    size: 21.5cm 28cm;
-    margin: 4mm !important;
+    size: A4;
+    margin: 15mm;
   }
 
+  /* Prevent individual table rows from breaking awkwardly across page splits */
   tr {
     break-inside: avoid;
     page-break-inside: avoid;
@@ -308,14 +305,14 @@ body,
   .print-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
     color: #000;
   }
 
   .print-table th,
   .print-table td {
-    border: 1.5px solid #000;
-    padding: 5px 6px;
+    border: 1px solid #000;
+    padding: 8px;
     text-align: left;
   }
 
