@@ -253,7 +253,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                     marginBottom: "10px",
                   }}
                 >
-                  Bill To:
+                  Dispatched To:
                 </h3>
                 <p style={{ margin: "2px 0", fontWeight: "bold" }}>
                   {customer.name || note.customerName || "N/A"}
