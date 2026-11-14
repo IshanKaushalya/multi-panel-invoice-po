@@ -1,7 +1,7 @@
 import React from "react";
 
 const DispatchNotePrintTemplate = React.forwardRef(
-  ({ note, settings, invoice }, ref) => {
+  ({ note, settings }, ref) => {
     if (!note) return <div ref={ref} style={{ display: "none" }}></div>;
 
     const displayCompanyName =
@@ -18,13 +18,16 @@ const DispatchNotePrintTemplate = React.forwardRef(
       hour12: true,
     });
 
+    // Safely extract customer data from the populated invoiceId reference
+    const customer = note.invoiceId?.customer || note.customer || {};
+
     return (
       <div
         ref={ref}
         className="print-root"
         style={{
           width: "100%",
-          minHeight: "250mm", // Adjusted to prevent spilling onto a 2nd page
+          minHeight: "250mm",
           margin: "0",
           padding: "0",
           fontFamily: "Arial, sans-serif",
@@ -175,24 +178,13 @@ const DispatchNotePrintTemplate = React.forwardRef(
                 Bill To:
               </h3>
               <p style={{ margin: "2px 0", fontWeight: "bold" }}>
-                {note.customer?.name ||
-                  note.invoice?.customer?.name ||
-                  invoice?.customer?.name ||
-                  "N/A"}
+                {customer.name || "N/A"}
               </p>
               <p style={{ margin: "2px 0" }}>
-                Phone:{" "}
-                {note.customer?.telephone ||
-                  note.invoice?.customer?.telephone ||
-                  invoice?.customer?.telephone ||
-                  "N/A"}
+                Phone: {customer.telephone || customer.phone || "N/A"}
               </p>
               <p style={{ margin: "2px 0" }}>
-                Address:{" "}
-                {note.customer?.address ||
-                  note.invoice?.customer?.address ||
-                  invoice?.customer?.address ||
-                  "N/A"}
+                Address: {customer.address || "N/A"}
               </p>
             </div>
 
@@ -215,10 +207,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
               <p style={{ margin: "2px 0" }}>
                 Purchasing No:{" "}
                 <strong>
-                  {note.purchasingNo ||
-                    note.invoice?.purchasingNo ||
-                    invoice?.purchasingNo ||
-                    "N/A"}
+                  {note.purchasingNo || note.invoiceId?.purchasingNo || "N/A"}
                 </strong>
               </p>
             </div>
