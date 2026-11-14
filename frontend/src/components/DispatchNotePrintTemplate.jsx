@@ -1,7 +1,7 @@
 import React from "react";
 
 const DispatchNotePrintTemplate = React.forwardRef(
-  ({ note, settings }, ref) => {
+  ({ note, settings, invoice }, ref) => {
     if (!note) return <div ref={ref} style={{ display: "none" }}></div>;
 
     const displayCompanyName =
@@ -24,7 +24,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
         className="print-root"
         style={{
           width: "100%",
-          minHeight: "268mm",
+          minHeight: "250mm", // Adjusted to prevent spilling onto a 2nd page
           margin: "0",
           padding: "0",
           fontFamily: "Arial, sans-serif",
@@ -62,7 +62,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
             alignItems: "center",
             fontSize: "11px",
             color: "#000",
-            marginBottom: "12px",
+            marginBottom: "10px",
           }}
         >
           <span>{generatedTime}</span>
@@ -80,7 +80,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
               alignItems: "flex-start",
               borderBottom: "2px solid #000",
               paddingBottom: "10px",
-              marginBottom: "14px",
+              marginBottom: "12px",
             }}
           >
             <div
@@ -157,11 +157,11 @@ const DispatchNotePrintTemplate = React.forwardRef(
             style={{
               display: "flex",
               justifyContent: "space-between",
-              marginBottom: "16px",
+              marginBottom: "14px",
               fontSize: "13px",
             }}
           >
-            {/* Bill To / Customer Details from Invoice */}
+            {/* Bill To / Customer Details */}
             <div style={{ width: "48%" }}>
               <h3
                 style={{
@@ -175,18 +175,23 @@ const DispatchNotePrintTemplate = React.forwardRef(
                 Bill To:
               </h3>
               <p style={{ margin: "2px 0", fontWeight: "bold" }}>
-                {note.customer?.name || note.invoice?.customer?.name || "N/A"}
+                {note.customer?.name ||
+                  note.invoice?.customer?.name ||
+                  invoice?.customer?.name ||
+                  "N/A"}
               </p>
               <p style={{ margin: "2px 0" }}>
                 Phone:{" "}
                 {note.customer?.telephone ||
                   note.invoice?.customer?.telephone ||
+                  invoice?.customer?.telephone ||
                   "N/A"}
               </p>
               <p style={{ margin: "2px 0" }}>
                 Address:{" "}
                 {note.customer?.address ||
                   note.invoice?.customer?.address ||
+                  invoice?.customer?.address ||
                   "N/A"}
               </p>
             </div>
@@ -210,20 +215,23 @@ const DispatchNotePrintTemplate = React.forwardRef(
               <p style={{ margin: "2px 0" }}>
                 Purchasing No:{" "}
                 <strong>
-                  {note.purchasingNo || note.invoice?.purchasingNo || "N/A"}
+                  {note.purchasingNo ||
+                    note.invoice?.purchasingNo ||
+                    invoice?.purchasingNo ||
+                    "N/A"}
                 </strong>
               </p>
             </div>
           </div>
 
-          {/* ITEMS TABLE (Optimized Column Widths) */}
+          {/* ITEMS TABLE */}
           <table
             className="print-table"
             style={{
               width: "100%",
               tableLayout: "fixed",
               borderCollapse: "collapse",
-              marginTop: "8px",
+              marginTop: "6px",
             }}
           >
             <thead>
@@ -233,7 +241,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                     width: "5%",
                     textAlign: "center",
                     border: "1.5px solid #000",
-                    padding: "6px 4px",
+                    padding: "5px 4px",
                     fontSize: "12px",
                     backgroundColor: "#f3f4f6",
                   }}
@@ -244,7 +252,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                   style={{
                     width: "65%",
                     border: "1.5px solid #000",
-                    padding: "6px 8px",
+                    padding: "5px 8px",
                     fontSize: "12px",
                     backgroundColor: "#f3f4f6",
                     textAlign: "left",
@@ -257,7 +265,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                     width: "15%",
                     textAlign: "center",
                     border: "1.5px solid #000",
-                    padding: "6px 4px",
+                    padding: "5px 4px",
                     fontSize: "12px",
                     backgroundColor: "#f3f4f6",
                   }}
@@ -269,7 +277,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                     width: "15%",
                     textAlign: "center",
                     border: "1.5px solid #000",
-                    padding: "6px 4px",
+                    padding: "5px 4px",
                     fontSize: "12px",
                     backgroundColor: "#f3f4f6",
                   }}
@@ -285,7 +293,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                     style={{
                       textAlign: "center",
                       border: "1.5px solid #000",
-                      padding: "6px 4px",
+                      padding: "5px 4px",
                       fontSize: "12px",
                     }}
                   >
@@ -294,7 +302,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                   <td
                     style={{
                       border: "1.5px solid #000",
-                      padding: "6px 8px",
+                      padding: "5px 8px",
                       fontSize: "12px",
                       wordWrap: "break-word",
                     }}
@@ -305,7 +313,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                     style={{
                       textAlign: "center",
                       border: "1.5px solid #000",
-                      padding: "6px 4px",
+                      padding: "5px 4px",
                       fontSize: "12px",
                     }}
                   >
@@ -315,8 +323,8 @@ const DispatchNotePrintTemplate = React.forwardRef(
                     style={{
                       textAlign: "center",
                       border: "1.5px solid #000",
-                      padding: "6px 4px",
-                      fontSize: "14px",
+                      padding: "5px 4px",
+                      fontSize: "13px",
                       fontWeight: "bold",
                     }}
                   >
@@ -328,11 +336,11 @@ const DispatchNotePrintTemplate = React.forwardRef(
           </table>
 
           {/* REMARKS SECTION */}
-          <div style={{ marginTop: "16px", width: "50%" }}>
+          <div style={{ marginTop: "12px", width: "50%" }}>
             <div
               style={{
-                padding: "8px",
-                minHeight: "65px",
+                padding: "6px 8px",
+                minHeight: "50px",
                 border: "1.5px solid #000",
                 borderRadius: "4px",
                 fontSize: "12px",
@@ -341,7 +349,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
               <strong>Remarks:</strong>
               <p
                 style={{
-                  margin: "4px 0 0 0",
+                  margin: "3px 0 0 0",
                   fontSize: "12px",
                   whiteSpace: "pre-wrap",
                 }}
@@ -358,13 +366,13 @@ const DispatchNotePrintTemplate = React.forwardRef(
         <div
           style={{
             marginTop: "auto",
-            paddingTop: "20px",
+            paddingTop: "15px",
             textAlign: "center",
             color: "#4b5563",
             fontSize: "12px",
           }}
         >
-          <p style={{ marginBottom: "25px" }}>
+          <p style={{ marginBottom: "20px" }}>
             Please verify the items above upon delivery.
           </p>
           <div
@@ -403,7 +411,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
             style={{
               display: "flex",
               justifyContent: "flex-end",
-              marginTop: "12px",
+              marginTop: "8px",
               fontSize: "11px",
               color: "#000",
             }}
