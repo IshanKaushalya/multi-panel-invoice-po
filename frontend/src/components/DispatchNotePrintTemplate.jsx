@@ -9,282 +9,406 @@ const DispatchNotePrintTemplate = React.forwardRef(
         ? settings.companyName
         : "Multi Engineering Services Lanka (Pvt) Ltd";
 
-    // Direct print handler that bypasses desktop saving
-    const handleDirectPrint = () => {
-      if (ref && ref.current) {
-        const printContents = ref.current.innerHTML;
-        const originalContents = document.body.innerHTML;
-
-        document.body.innerHTML = `
-          <html>
-            <head>
-              <title>Dispatch Note - ${note.dispatchNo || ""}</title>
-              <style>
-                body { font-family: Arial, sans-serif; color: #000; margin: 0; padding: 20px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #000; padding: 8px; font-size: 12px; }
-                th { background-color: #f3f4f6; }
-                .no-print { display: none !important; }
-              </style>
-            </head>
-            <body>
-              ${printContents}
-            </body>
-          </html>
-        `;
-
-        window.print();
-        document.body.innerHTML = originalContents;
-        window.location.reload(); // Restores full React application state seamlessly
-      } else {
-        window.print();
-      }
-    };
+    const generatedTime = new Date().toLocaleString("en-US", {
+      year: "2-digit",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
 
     return (
-      <div style={{ position: "relative" }}>
-        {/* DIRECT PRINT BUTTON (Hidden automatically during printing) */}
+      <div
+        ref={ref}
+        className="print-root"
+        style={{
+          width: "100%",
+          minHeight: "268mm",
+          margin: "0",
+          padding: "0",
+          fontFamily: "Arial, sans-serif",
+          color: "#000",
+          display: "flex",
+          flexDirection: "column",
+          boxSizing: "border-box",
+          backgroundColor: "#fff",
+        }}
+      >
+        <style>
+          {`
+            @media print {
+              @page {
+                size: 21.5cm 28cm;
+                margin: 5mm !important;
+              }
+              body {
+                width: 21.5cm !important;
+                height: 28cm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+            }
+          `}
+        </style>
+
+        {/* TOP METADATA BAR: Generated Time & Dispatch Number */}
         <div
-          className="no-print"
           style={{
             display: "flex",
-            justifyContent: "flex-end",
-            marginBottom: "15px",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontSize: "11px",
+            color: "#000",
+            marginBottom: "12px",
           }}
         >
-          <button
-            onClick={handleDirectPrint}
-            style={{
-              backgroundColor: "#2563eb",
-              color: "white",
-              border: "none",
-              padding: "0.6rem 1.2rem",
-              borderRadius: "6px",
-              fontSize: "0.9rem",
-              fontWeight: "600",
-              cursor: "pointer",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
-            🖨️ Print Directly
-          </button>
+          <span>{generatedTime}</span>
+          <span style={{ fontWeight: "500" }}>DNo: {note.dispatchNo}</span>
+          <span style={{ width: "80px" }}></span>
         </div>
 
-        {/* DISPATCH NOTE CONTAINER */}
-        <div
-          ref={ref}
-          style={{
-            padding: "20px",
-            fontFamily: "Arial, sans-serif",
-            color: "#000",
-            minHeight: "260mm",
-            display: "flex",
-            flexDirection: "column",
-            boxSizing: "border-box",
-            backgroundColor: "#fff",
-          }}
-        >
-          {/* TOP CONTENT WRAPPER */}
-          <div style={{ flex: 1 }}>
-            {/* HEADER WITH LOGO */}
+        {/* TOP CONTENT WRAPPER */}
+        <div style={{ flex: 1 }}>
+          {/* HEADER WITH LOGO */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              borderBottom: "2px solid #000",
+              paddingBottom: "10px",
+              marginBottom: "14px",
+            }}
+          >
             <div
               style={{
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                borderBottom: "2px solid #000",
-                paddingBottom: "20px",
-                marginBottom: "20px",
+                alignItems: "center",
+                gap: "12px",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "15px",
+              <img
+                src="/logo.png"
+                alt="Company Logo"
+                style={{ width: "65px", height: "65px", objectFit: "contain" }}
+                onError={(e) => {
+                  e.target.style.display = "none";
                 }}
-              >
-                <img
-                  src="/logo.png"
-                  alt="Company Logo"
+              />
+              <div>
+                <h1
                   style={{
-                    width: "75px",
-                    height: "75px",
-                    objectFit: "contain",
-                  }}
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                  }}
-                />
-                <div>
-                  <h1
-                    style={{
-                      margin: "0 0 8px 0",
-                      fontSize: "20px",
-                      color: "#111827",
-                      whiteSpace: "nowrap", // Keeps company name on a single line
-                    }}
-                  >
-                    {displayCompanyName}
-                  </h1>
-                  <p style={{ margin: "2px 0", fontSize: "13px" }}>
-                    {settings?.companyAddress ||
-                      "No.466/7A Thapowanaya Road, Aggona, Angoda"}
-                  </p>
-                  <p style={{ margin: "2px 0", fontSize: "13px" }}>
-                    Phone: {settings?.companyPhone || "0777791772/0771118034"}
-                  </p>
-                  <p style={{ margin: "2px 0", fontSize: "13px" }}>
-                    Email:{" "}
-                    {settings?.companyEmail || "newmultiengineering@gmail.com"}
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ textAlign: "right", whiteSpace: "nowrap" }}>
-                <h2
-                  style={{
-                    margin: "0 0 10px 0",
-                    fontSize: "28px",
-                    color: "#374151",
-                    textTransform: "uppercase",
+                    margin: "0 0 4px 0",
+                    fontSize: "19px",
+                    color: "#111827",
+                    whiteSpace: "nowrap",
                   }}
                 >
-                  Dispatch Note
-                </h2>
-                <p style={{ margin: "5px 0", fontWeight: "bold" }}>
-                  DNo: {note.dispatchNo}
+                  {displayCompanyName}
+                </h1>
+                <p style={{ margin: "2px 0", fontSize: "12px" }}>
+                  {settings?.companyAddress ||
+                    "No.466/7A Thapowanaya Road, Aggona, Angoda"}
                 </p>
-                <p style={{ margin: "5px 0" }}>Date: {note.date}</p>
-                <p style={{ margin: "5px 0" }}>Time: {note.time}</p>
+                <p style={{ margin: "2px 0", fontSize: "12px" }}>
+                  Phone: {settings?.companyPhone || "0777791772/0771118034"}
+                </p>
+                <p style={{ margin: "2px 0", fontSize: "12px" }}>
+                  Email:{" "}
+                  {settings?.companyEmail || "newmultiengineering@gmail.com"}
+                </p>
               </div>
             </div>
 
-            {/* META DATA */}
-            <div style={{ marginBottom: "30px" }}>
+            <div style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+              <h2
+                style={{
+                  margin: "0 0 6px 0",
+                  fontSize: "26px",
+                  color: "#374151",
+                  textTransform: "uppercase",
+                }}
+              >
+                Dispatch Note
+              </h2>
+              <p
+                style={{
+                  margin: "3px 0",
+                  fontSize: "13px",
+                  fontWeight: "bold",
+                }}
+              >
+                DNo: {note.dispatchNo}
+              </p>
+              <p style={{ margin: "3px 0", fontSize: "13px" }}>
+                Date: {note.date}
+              </p>
+              <p style={{ margin: "3px 0", fontSize: "13px" }}>
+                Time: {note.time}
+              </p>
+            </div>
+          </div>
+
+          {/* CUSTOMER & REFERENCE DETAILS */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "16px",
+              fontSize: "13px",
+            }}
+          >
+            {/* Bill To / Customer Details from Invoice */}
+            <div style={{ width: "48%" }}>
               <h3
                 style={{
                   borderBottom: "1px solid #000",
-                  paddingBottom: "5px",
-                  marginBottom: "10px",
+                  paddingBottom: "4px",
+                  marginBottom: "6px",
+                  fontSize: "14px",
+                  marginTop: 0,
+                }}
+              >
+                Bill To:
+              </h3>
+              <p style={{ margin: "2px 0", fontWeight: "bold" }}>
+                {note.customer?.name || note.invoice?.customer?.name || "N/A"}
+              </p>
+              <p style={{ margin: "2px 0" }}>
+                Phone:{" "}
+                {note.customer?.telephone ||
+                  note.invoice?.customer?.telephone ||
+                  "N/A"}
+              </p>
+              <p style={{ margin: "2px 0" }}>
+                Address:{" "}
+                {note.customer?.address ||
+                  note.invoice?.customer?.address ||
+                  "N/A"}
+              </p>
+            </div>
+
+            {/* Reference Details */}
+            <div style={{ width: "48%" }}>
+              <h3
+                style={{
+                  borderBottom: "1px solid #000",
+                  paddingBottom: "4px",
+                  marginBottom: "6px",
+                  fontSize: "14px",
+                  marginTop: 0,
                 }}
               >
                 Reference Details:
               </h3>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <p style={{ margin: "2px 0" }}>
-                  Linked Invoice No: <strong>{note.invoiceNo}</strong>
-                </p>
-                <p style={{ margin: "2px 0" }}>
-                  Purchasing No: <strong>{note.purchasingNo || "N/A"}</strong>
-                </p>
-              </div>
-            </div>
-
-            {/* ITEMS TABLE WITH NUMBERS */}
-            <table className="print-table">
-              <thead>
-                <tr>
-                  <th style={{ width: "40px", textAlign: "center" }}>#</th>
-                  <th>Item Description</th>
-                  <th style={{ width: "100px", textAlign: "center" }}>Unit</th>
-                  <th style={{ width: "140px", textAlign: "center" }}>
-                    Dispatched Qty
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {note.items.map((item, index) => (
-                  <tr key={index}>
-                    <td style={{ textAlign: "center" }}>{index + 1}</td>
-                    <td>{item.description}</td>
-                    <td style={{ textAlign: "center" }}>
-                      {item.unitType || "NOS"}
-                    </td>
-                    <td
-                      style={{
-                        textAlign: "center",
-                        fontWeight: "bold",
-                        fontSize: "16px",
-                      }}
-                    >
-                      {item.quantity}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* REMARKS SECTION */}
-            <div style={{ marginTop: "20px", width: "50%" }}>
-              <div
-                style={{
-                  padding: "10px",
-                  minHeight: "80px",
-                  border: "1px solid #000",
-                  borderRadius: "4px",
-                }}
-              >
-                <strong>Remarks:</strong>
-                <p
-                  style={{
-                    margin: "5px 0 0 0",
-                    fontSize: "14px",
-                    whiteSpace: "pre-wrap",
-                  }}
-                >
-                  {note.remarks && note.remarks.trim() !== ""
-                    ? note.remarks
-                    : "-"}
-                </p>
-              </div>
+              <p style={{ margin: "2px 0" }}>
+                Linked Invoice No: <strong>{note.invoiceNo}</strong>
+              </p>
+              <p style={{ margin: "2px 0" }}>
+                Purchasing No:{" "}
+                <strong>
+                  {note.purchasingNo || note.invoice?.purchasingNo || "N/A"}
+                </strong>
+              </p>
             </div>
           </div>
 
-          {/* FOOTER (PUSHED TO THE BOTTOM WITH WIDE GAP) */}
-          <div
+          {/* ITEMS TABLE (Optimized Column Widths) */}
+          <table
+            className="print-table"
             style={{
-              marginTop: "auto",
-              paddingTop: "40px",
-              textAlign: "center",
-              color: "#4b5563",
-              fontSize: "14px",
+              width: "100%",
+              tableLayout: "fixed",
+              borderCollapse: "collapse",
+              marginTop: "8px",
             }}
           >
-            <p style={{ marginBottom: "40px" }}>
-              Please verify the items above upon delivery.
-            </p>
+            <thead>
+              <tr>
+                <th
+                  style={{
+                    width: "5%",
+                    textAlign: "center",
+                    border: "1.5px solid #000",
+                    padding: "6px 4px",
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                  }}
+                >
+                  #
+                </th>
+                <th
+                  style={{
+                    width: "65%",
+                    border: "1.5px solid #000",
+                    padding: "6px 8px",
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                    textAlign: "left",
+                  }}
+                >
+                  Item Description
+                </th>
+                <th
+                  style={{
+                    width: "15%",
+                    textAlign: "center",
+                    border: "1.5px solid #000",
+                    padding: "6px 4px",
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                  }}
+                >
+                  Unit
+                </th>
+                <th
+                  style={{
+                    width: "15%",
+                    textAlign: "center",
+                    border: "1.5px solid #000",
+                    padding: "6px 4px",
+                    fontSize: "12px",
+                    backgroundColor: "#f3f4f6",
+                  }}
+                >
+                  Dispatched Qty
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {note.items.map((item, index) => (
+                <tr key={index}>
+                  <td
+                    style={{
+                      textAlign: "center",
+                      border: "1.5px solid #000",
+                      padding: "6px 4px",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {index + 1}
+                  </td>
+                  <td
+                    style={{
+                      border: "1.5px solid #000",
+                      padding: "6px 8px",
+                      fontSize: "12px",
+                      wordWrap: "break-word",
+                    }}
+                  >
+                    {item.description}
+                  </td>
+                  <td
+                    style={{
+                      textAlign: "center",
+                      border: "1.5px solid #000",
+                      padding: "6px 4px",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {item.unitType || "NOS"}
+                  </td>
+                  <td
+                    style={{
+                      textAlign: "center",
+                      border: "1.5px solid #000",
+                      padding: "6px 4px",
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {item.quantity}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* REMARKS SECTION */}
+          <div style={{ marginTop: "16px", width: "50%" }}>
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                padding: "0 20px",
+                padding: "8px",
+                minHeight: "65px",
+                border: "1.5px solid #000",
+                borderRadius: "4px",
+                fontSize: "12px",
               }}
             >
-              <div
+              <strong>Remarks:</strong>
+              <p
                 style={{
-                  borderTop: "1px solid #000",
-                  width: "220px",
-                  paddingTop: "10px",
-                  color: "#000",
+                  margin: "4px 0 0 0",
+                  fontSize: "12px",
+                  whiteSpace: "pre-wrap",
                 }}
               >
-                Received By (Customer Signature)
-              </div>
-              <div
-                style={{
-                  borderTop: "1px solid #000",
-                  width: "220px",
-                  paddingTop: "10px",
-                  color: "#000",
-                }}
-              >
-                Authorized Signatory
-              </div>
+                {note.remarks && note.remarks.trim() !== ""
+                  ? note.remarks
+                  : "-"}
+              </p>
             </div>
+          </div>
+        </div>
+
+        {/* FOOTER & SIGNATURES */}
+        <div
+          style={{
+            marginTop: "auto",
+            paddingTop: "20px",
+            textAlign: "center",
+            color: "#4b5563",
+            fontSize: "12px",
+          }}
+        >
+          <p style={{ marginBottom: "25px" }}>
+            Please verify the items above upon delivery.
+          </p>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "0 10px",
+            }}
+          >
+            <div
+              style={{
+                borderTop: "1.5px solid #000",
+                width: "200px",
+                paddingTop: "6px",
+                color: "#000",
+                fontSize: "12px",
+              }}
+            >
+              Received By (Customer Signature)
+            </div>
+            <div
+              style={{
+                borderTop: "1.5px solid #000",
+                width: "200px",
+                paddingTop: "6px",
+                color: "#000",
+                fontSize: "12px",
+              }}
+            >
+              Authorized Signatory
+            </div>
+          </div>
+
+          {/* PAGE NUMBER AT BOTTOM RIGHT */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: "12px",
+              fontSize: "11px",
+              color: "#000",
+            }}
+          >
+            <span>1/1</span>
           </div>
         </div>
       </div>
