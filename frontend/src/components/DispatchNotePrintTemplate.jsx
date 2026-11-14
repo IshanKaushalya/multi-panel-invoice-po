@@ -1,7 +1,70 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const DispatchNotePrintTemplate = React.forwardRef(
   ({ note, settings }, ref) => {
+    const [fetchedCustomer, setFetchedCustomer] = useState(null);
+
+    const existingCustomer =
+      note?.invoiceId?.customer ||
+      note?.invoice?.customer ||
+      note?.customer ||
+      null;
+
+    useEffect(() => {
+      if (!note) return;
+
+      // If customer details are already present and populated, no need to fetch
+      if (existingCustomer && existingCustomer.name) {
+        setFetchedCustomer(null);
+        return;
+      }
+
+      // Otherwise, fetch the related invoice to get the customer details
+      const fetchRelatedInvoice = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const headers = token ? { Authorization: `Bearer ${token}` } : {};
+          const baseUrl = import.meta.env?.VITE_API_URL || "";
+
+          const rawInvoiceId =
+            typeof note.invoiceId === "object"
+              ? note.invoiceId?._id
+              : note.invoiceId;
+
+          if (rawInvoiceId) {
+            const res = await fetch(`${baseUrl}/api/invoices/${rawInvoiceId}`, {
+              headers,
+            });
+            if (res.ok) {
+              const invData = await res.json();
+              if (invData?.customer) {
+                setFetchedCustomer(invData.customer);
+                return;
+              }
+            }
+          }
+
+          // Fallback: search in invoices list by invoiceNo
+          if (note.invoiceNo) {
+            const res = await fetch(`${baseUrl}/api/invoices`, { headers });
+            if (res.ok) {
+              const invoices = await res.json();
+              const matched = Array.isArray(invoices)
+                ? invoices.find((inv) => inv.invoiceNo === note.invoiceNo)
+                : null;
+              if (matched?.customer) {
+                setFetchedCustomer(matched.customer);
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Failed to fetch invoice customer:", err);
+        }
+      };
+
+      fetchRelatedInvoice();
+    }, [note, existingCustomer]);
+
     if (!note) return <div ref={ref} style={{ display: "none" }}></div>;
 
     const displayCompanyName =
@@ -9,10 +72,17 @@ const DispatchNotePrintTemplate = React.forwardRef(
         ? settings.companyName
         : "Multi Engineering Services Lanka (Pvt) Ltd";
 
-    // Safely extract customer details from the populated invoiceId reference
-    const customer = note.invoiceId?.customer || note.customer || {};
+    const customer =
+      existingCustomer && existingCustomer.name
+        ? existingCustomer
+        : fetchedCustomer || {};
 
-    // Direct print handler that bypasses desktop saving
+    const purchasingNo =
+      note.purchasingNo ||
+      note.invoiceId?.purchasingNo ||
+      note.invoice?.purchasingNo ||
+      "N/A";
+
     const handleDirectPrint = () => {
       if (ref && ref.current) {
         const printContents = ref.current.innerHTML;
@@ -38,7 +108,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
 
         window.print();
         document.body.innerHTML = originalContents;
-        window.location.reload(); // Restores full React application state seamlessly
+        window.location.reload();
       } else {
         window.print();
       }
@@ -174,7 +244,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                 marginBottom: "30px",
               }}
             >
-              {/* Bill To / Customer Details */}
+              {/* Bill To / Customer Details from Related Invoice */}
               <div style={{ width: "48%" }}>
                 <h3
                   style={{
@@ -186,13 +256,17 @@ const DispatchNotePrintTemplate = React.forwardRef(
                   Bill To:
                 </h3>
                 <p style={{ margin: "2px 0", fontWeight: "bold" }}>
-                  {customer.name || "N/A"}
+                  {customer.name || note.customerName || "N/A"}
                 </p>
                 <p style={{ margin: "2px 0" }}>
-                  Phone: {customer.telephone || customer.phone || "N/A"}
+                  Phone:{" "}
+                  {customer.telephone ||
+                    customer.phone ||
+                    note.customerPhone ||
+                    "N/A"}
                 </p>
                 <p style={{ margin: "2px 0" }}>
-                  Address: {customer.address || "N/A"}
+                  Address: {customer.address || note.customerAddress || "N/A"}
                 </p>
               </div>
 
@@ -211,10 +285,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                   Linked Invoice No: <strong>{note.invoiceNo}</strong>
                 </p>
                 <p style={{ margin: "2px 0" }}>
-                  Purchasing No:{" "}
-                  <strong>
-                    {note.purchasingNo || note.invoiceId?.purchasingNo || "N/A"}
-                  </strong>
+                  Purchasing No: <strong>{purchasingNo}</strong>
                 </p>
               </div>
             </div>
@@ -279,7 +350,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
             </div>
           </div>
 
-          {/* FOOTER (PUSHED TO THE BOTTOM WITH WIDE GAP) */}
+          {/* FOOTER */}
           <div
             style={{
               marginTop: "auto",
@@ -311,7 +382,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
               </div>
               <div
                 style={{
-                  borderTop: "1.5px solid #000",
+                  borderTop: "1px solid #000",
                   width: "220px",
                   paddingTop: "10px",
                   color: "#000",

@@ -17,9 +17,10 @@ router.get("/", async (req, res) => {
 // VIEW a single dispatch note by ID
 router.get("/:id", async (req, res) => {
   try {
-    const dispatchNote = await DispatchNote.findById(req.params.id).populate(
-      "invoiceId",
-    );
+    const dispatchNote = await DispatchNote.findById(req.params.id).populate({
+      path: "invoiceId",
+      populate: { path: "customer", strictPopulate: false },
+    });
     if (!dispatchNote)
       return res.status(404).json({ message: "Dispatch Note not found" });
     res.json(dispatchNote);
