@@ -9,6 +9,9 @@ const DispatchNotePrintTemplate = React.forwardRef(
         ? settings.companyName
         : "Multi Engineering Services Lanka (Pvt) Ltd";
 
+    // Safely extract customer details from the populated invoiceId reference
+    const customer = note.invoiceId?.customer || note.customer || {};
+
     // Direct print handler that bypasses desktop saving
     const handleDirectPrint = () => {
       if (ref && ref.current) {
@@ -22,7 +25,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
               <style>
                 body { font-family: Arial, sans-serif; color: #000; margin: 0; padding: 20px; }
                 table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #000; padding: 8px; font-size: 12px; }
+                th, td { border: 1.5px solid #000; padding: 8px; font-size: 12px; }
                 th { background-color: #f3f4f6; }
                 .no-print { display: none !important; }
               </style>
@@ -125,7 +128,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
                       margin: "0 0 8px 0",
                       fontSize: "20px",
                       color: "#111827",
-                      whiteSpace: "nowrap", // Keeps company name on a single line
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {displayCompanyName}
@@ -163,23 +166,55 @@ const DispatchNotePrintTemplate = React.forwardRef(
               </div>
             </div>
 
-            {/* META DATA */}
-            <div style={{ marginBottom: "30px" }}>
-              <h3
-                style={{
-                  borderBottom: "1px solid #000",
-                  paddingBottom: "5px",
-                  marginBottom: "10px",
-                }}
-              >
-                Reference Details:
-              </h3>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
+            {/* CUSTOMER & REFERENCE DETAILS SECTION */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "30px",
+              }}
+            >
+              {/* Bill To / Customer Details */}
+              <div style={{ width: "48%" }}>
+                <h3
+                  style={{
+                    borderBottom: "1px solid #000",
+                    paddingBottom: "5px",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Bill To:
+                </h3>
+                <p style={{ margin: "2px 0", fontWeight: "bold" }}>
+                  {customer.name || "N/A"}
+                </p>
+                <p style={{ margin: "2px 0" }}>
+                  Phone: {customer.telephone || customer.phone || "N/A"}
+                </p>
+                <p style={{ margin: "2px 0" }}>
+                  Address: {customer.address || "N/A"}
+                </p>
+              </div>
+
+              {/* Reference Details */}
+              <div style={{ width: "48%" }}>
+                <h3
+                  style={{
+                    borderBottom: "1px solid #000",
+                    paddingBottom: "5px",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Reference Details:
+                </h3>
                 <p style={{ margin: "2px 0" }}>
                   Linked Invoice No: <strong>{note.invoiceNo}</strong>
                 </p>
                 <p style={{ margin: "2px 0" }}>
-                  Purchasing No: <strong>{note.purchasingNo || "N/A"}</strong>
+                  Purchasing No:{" "}
+                  <strong>
+                    {note.purchasingNo || note.invoiceId?.purchasingNo || "N/A"}
+                  </strong>
                 </p>
               </div>
             </div>
@@ -276,7 +311,7 @@ const DispatchNotePrintTemplate = React.forwardRef(
               </div>
               <div
                 style={{
-                  borderTop: "1px solid #000",
+                  borderTop: "1.5px solid #000",
                   width: "220px",
                   paddingTop: "10px",
                   color: "#000",
